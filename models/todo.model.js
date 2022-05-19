@@ -31,7 +31,7 @@ async function toggleCompleteAll() {
   );
   return completedTask;
 }
-async function toggleNOTCompleteAll() {
+async function toggleActiveAll() {
   const tasks = await getData();
   const completedTask = tasks.map((el) => ({ ...el, completed: false }));
 
@@ -87,6 +87,6 @@ module.exports = {
   deleteTask,
   editTaskValue,
   toggleCompleteAll,
-  toggleNOTCompleteAll,
+  toggleActiveAll,
   clearCompleted,
 };

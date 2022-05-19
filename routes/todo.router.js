@@ -6,15 +6,13 @@ const {
   editTaskValue,
   deleteTask,
   toggleCompleteAll,
-  toggleNOTCompleteAll,
+  toggleActiveAll,
   clearCompleted,
 } = require("../models/todo.model");
 router.get("/", async (request, response, next) => {
-  const filter = request.query;
-  console.log(request.originalUrl);
+  const status = request.query.status;
 
-  if (!Object.keys(filter).length) {
-    console.log("ups");
+  if (!status) {
     try {
       const todos = await getData();
       return response.json(todos);
@@ -22,7 +20,7 @@ router.get("/", async (request, response, next) => {
       return next(err);
     }
   } else {
-    if (filter.filter === "completed") {
+    if (status === "completed") {
       try {
         const todos = (await clearCompleted()) || [];
 
@@ -34,7 +32,7 @@ router.get("/", async (request, response, next) => {
     try {
       const todos = await getData();
       return response.json(
-        todos.filter((el) => el.completed === Boolean(Number(filter.filter)))
+        todos.filter((el) => el.completed === Boolean(Number(status)))
       );
     } catch (err) {
       return next(err);
@@ -43,13 +41,34 @@ router.get("/", async (request, response, next) => {
 });
 
 router.post("/", async (req, res, next) => {
+  const setAll = req.query.set;
   const { value } = req.body;
-  try {
-    const task = await addTask(value);
-    return res.send(task);
-  } catch (error) {
-    res.status(400);
-    throw new Error("Task not created");
+
+  if (value && !setAll) {
+    try {
+      const task = await addTask(value);
+      return res.send(task);
+    } catch (error) {
+      res.status(400);
+      throw new Error("Task not created");
+    }
+  }
+
+  if (setAll === "completed") {
+    try {
+      const tasks = await toggleCompleteAll();
+      return res.send(tasks);
+    } catch (error) {
+      throw new Error("task does not exist");
+    }
+  }
+  if (setAll === "active") {
+    try {
+      const tasks = await toggleActiveAll();
+      return res.send(tasks);
+    } catch (error) {
+      throw new Error("task does not exist");
+    }
   }
 });
 
@@ -74,23 +93,7 @@ router.get("/:id", async (req, res, next) => {
     throw new Error("task does not exist");
   }
 });
-router.post("/completed", async (req, res, next) => {
-  try {
-    const tasks = await toggleCompleteAll();
-    console.log(tasks);
-    return res.send(tasks);
-  } catch (error) {
-    throw new Error("task does not exist");
-  }
-});
-router.post("/notcompleted", async (req, res, next) => {
-  try {
-    const tasks = await toggleNOTCompleteAll();
-    console.log(tasks);
-    return res.send(tasks);
-  } catch (error) {
-    throw new Error("task does not exist");
-  }
-});
+
+router.post("/?set", async (req, res, next) => {});
 
 module.exports = { router };

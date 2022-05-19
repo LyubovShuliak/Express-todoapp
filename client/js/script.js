@@ -129,13 +129,13 @@ async function toggleCompleted(e, key) {
 
 toggleCompletedAll.addEventListener("click", async (e) => {
   if (e.target.checked) {
-    fetch(`${URL_REQ}/completed`, {
+    fetch(`${URL_REQ}/?set=completed`, {
       method: "POST",
 
       body: null,
     }).then(() => toggleAllCompeted());
   } else {
-    fetch(`${URL_REQ}/notcompleted`, {
+    fetch(`${URL_REQ}/?set=active`, {
       method: "POST",
       body: null,
     })
@@ -162,9 +162,12 @@ function populateTask(task) {
     const editing = document.querySelector(".editing");
     if (editing) {
       editing.classList.remove("editing");
+
+      editing.querySelector(".toggle").disabled = false;
+    } else {
+      toggleItem.disabled = true;
+      listItem.classList.toggle("editing");
     }
-    toggleItem.disabled = true;
-    listItem.classList.toggle("editing");
   });
   editItem.addEventListener(
     "keypress",
@@ -190,9 +193,8 @@ function populateTask(task) {
 
 async function addTask(e) {
   const todo = e.target.value;
-
   if (e.which === 13) {
-    await fetch(`${URL_REQ}`, {
+    await fetch(`${URL_REQ}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -213,7 +215,7 @@ async function addTask(e) {
 }
 
 async function fetchTasks(filter) {
-  const query = filter ? `?filter=${filter}` : "";
+  const query = filter ? `?status=${filter}` : "";
   let p;
   await fetch(`${URL_REQ}/${query}`).then(async (data) => {
     const fetchedTasks = await data.json();
