@@ -274,3 +274,21 @@ document
     todoList.replaceChildren(...completed);
   });
 fetchTasks();
+
+function previewFile() {
+  var preview = document.querySelector("img");
+  var file = document.querySelector("input[type=file]").files[0];
+  var reader = new FileReader();
+
+  reader.onloadend = function () {
+    const blob = new Blob([reader.result], { type: "image/jpg" });
+    console.log(blob);
+  };
+
+  if (file) {
+    reader.readAsArrayBuffer(file);
+  }
+}
+document
+  .querySelector("input[type=file]")
+  .addEventListener("change", previewFile);
